@@ -472,7 +472,8 @@ func main() {
 			}
 
 			// Print average difference in points for player against each opponent:
-			if !single {
+			// NB. Currently DISABLED because this is meaningless for Poly-Y!
+			if false && !single {
 				fmt.Println()
 				fmt.Printf("%34s", "")
 				for i := range players {
