@@ -46,21 +46,20 @@ type PolyYGame struct {
 	board poly_y.Board
 }
 
-var poly_y_game PolyYGame
-
 func (pyg *PolyYGame) CreateState() GameState {
 	return &poly_y.State{Board: &pyg.board}
 }
 
 func (pyg *PolyYGame) ParseMove(s string) (interface{}, bool) {
-	if i, err := strconv.ParseInt(s, 10, 0); err == nil && i > 0 && i <= int64(len(pyg.board.Fields)) {
+	if i, err := strconv.ParseInt(s, 10, 0); err == nil &&
+		(i == -1 || (i > 0 && i <= int64(len(pyg.board.Fields)))) {
 		return poly_y.Move(i), true
 	} else {
 		return poly_y.Move(0), false
 	}
 }
 
-var game Game = &poly_y_game
+var game Game = nil
 var logPath = ""
 var msgPath = ""
 var quiet = false
@@ -338,6 +337,7 @@ func shorten(in string, n int) string {
 func main() {
 
 	// Initialize Poly-Y board:
+	var poly_y_game PolyYGame
 	if file, err := os.Open("board.txt"); err != nil {
 		fmt.Println(err)
 		return
@@ -345,6 +345,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	game = &poly_y_game
 
 	// Initialize arbiter
 	rand.Seed(time.Now().UnixNano())
