@@ -1,17 +1,15 @@
 package main
 
 import (
+	"ayu"
 	"bufio"
-	//	"dvonn"
 	"flag"
 	"fmt"
 	"io"
 	"math/rand"
 	"os"
 	"os/exec"
-	"poly_y"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -30,36 +28,17 @@ type Game interface {
 	ParseMove(s string) (interface{}, bool)
 }
 
-/*
-type DvonnGame struct{}
+type AyuGame struct{}
 
-func (dg DvonnGame) CreateState() GameState {
-	return GameState(dvonn.CreateState())
+func (ag AyuGame) CreateState() GameState {
+	return ayu.CreateState()
 }
 
-func (dg DvonnGame) ParseMove(s string) (interface{}, bool) {
-	return dvonn.Parse(s)
-}
-*/
-
-type PolyYGame struct {
-	board poly_y.Board
+func (ag AyuGame) ParseMove(s string) (interface{}, bool) {
+	return ayu.ParseMove(s)
 }
 
-func (pyg *PolyYGame) CreateState() GameState {
-	return &poly_y.State{Board: &pyg.board}
-}
-
-func (pyg *PolyYGame) ParseMove(s string) (interface{}, bool) {
-	if i, err := strconv.ParseInt(s, 10, 0); err == nil &&
-		(i == -1 || (i > 0 && i <= int64(len(pyg.board.Fields)))) {
-		return poly_y.Move(i), true
-	} else {
-		return poly_y.Move(0), false
-	}
-}
-
-var game Game = nil
+var game AyuGame
 var logPath = ""
 var msgPath = ""
 var quiet = false
@@ -335,19 +314,6 @@ func shorten(in string, n int) string {
 }
 
 func main() {
-
-	// Initialize Poly-Y board:
-	var poly_y_game PolyYGame
-	if file, err := os.Open("board.txt"); err != nil {
-		fmt.Println(err)
-		return
-	} else if err := poly_y_game.board.Read(file); err != nil {
-		fmt.Println(err)
-		return
-	}
-	game = &poly_y_game
-
-	// Initialize arbiter
 	rand.Seed(time.Now().UnixNano())
 	rounds := 1
 	single := false
