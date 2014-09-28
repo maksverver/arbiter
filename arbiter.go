@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"runtime/pprof"
 	"sort"
 	"strings"
 	"time"
@@ -41,6 +42,7 @@ func (ag AyuGame) ParseMove(s string) (interface{}, bool) {
 var game AyuGame
 var logPath = ""
 var msgPath = ""
+var cpuprofile = ""
 var quiet = false
 
 type Result struct {
@@ -322,6 +324,7 @@ func main() {
 	flag.IntVar(&rounds, "rounds", rounds, "number of rounds to play")
 	flag.StringVar(&msgPath, "msg", msgPath, "path to player message log files")
 	flag.StringVar(&logPath, "log", logPath, "path to game log files")
+	flag.StringVar(&cpuprofile, "cpuprofile", cpuprofile, "path to cpu profile")
 	flag.Parse()
 	if flag.NArg() < 2 {
 		fmt.Fprintln(os.Stderr, "Too few player commands passed!")
@@ -332,6 +335,14 @@ func main() {
 	} else if single && (flag.NArg() > 2 || rounds > 1) {
 		fmt.Fprintln(os.Stderr, "Single game requires two players and one round!")
 	} else {
+		if cpuprofile != "" {
+			if f, err := os.Create(cpuprofile); err != nil {
+				fmt.Println(os.Stderr, "Failed create CPU profile!")
+			} else {
+				pprof.StartCPUProfile(f)
+				defer pprof.StopCPUProfile()
+			}
+		}
 		players := flag.Args()
 		results := runTournament(players, rounds, single)
 		numGames := rounds * (len(players) - 1) * 2 // per player
